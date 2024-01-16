@@ -12,7 +12,7 @@ const App = () => {
       return
     }
 
-    document.title = `${exchange.ask} ${to}`
+    document.title = `${exchange} ${to}`
     return () => document.title = 'Conversor de moedas'
   }, [exchange, to])
 
@@ -27,11 +27,14 @@ const App = () => {
       setLoading('Carregando...')
       fetch(`https://economia.awesomeapi.com.br/last/${from}-${to}`)
         .then(res => res.json())
-        .then(data => setExchange(data.USDBRL))
+        .then(data => {
+          setExchange(data[from + to].ask)
+          setLoading(null)
+        })
         .catch(console.log)
     }, 500)
 
-    return () => clearInterval(id)
+    return () => clearTimeout(id)
   }, [amout, from, to])
 
   const handleChangeFrom = e => setFrom(e.target.value)
@@ -40,6 +43,7 @@ const App = () => {
   console.log(exchange)
   return (
     <>
+      <h1>Conversor de moedas</h1>
       <input value={amout} type="number" autoFocus onChange={handleChangeAmout} />
 
       <div className="selects">
@@ -56,7 +60,7 @@ const App = () => {
       </div>
 
       {loading && <h2>{loading}</h2>}
-      {exchange && <h2>{`${exchange.ask} ${to}`}</h2>}
+      {exchange && <h2>{`${(exchange * amout).toFixed(2)} ${to}`}</h2>}
     </>
   )
 }
